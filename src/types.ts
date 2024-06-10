@@ -14,8 +14,16 @@ export interface CollectionContract {
       status: CollectionStatus;
       editions: number;
       price: number;
+      mintMode: number;
     }>
   >;
+  getCollectionConfig<T>(params:T): Promise<
+    QueryResponse<{
+      maxBatchMintAllowed: number;
+      startDate: number;
+      endDate: number;
+      enableBatchMint: boolean;
+    }>>
   getPlatformConfig(): Promise<
     QueryResponse<{
       maxCollectionSize: number;

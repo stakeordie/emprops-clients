@@ -28,7 +28,6 @@ export interface SetEditionsParamsBaseV1
 }
 
 export interface MintParamsBaseV1 {
-  from: string;
   collectionId: number;
   owner: string;
   quantity: number;
@@ -37,6 +36,7 @@ export interface MintParamsBaseV1 {
     proof: string[];
     allowedToMint: number;
   };
+  value: string;
 }
 
 export interface CreateCollectionParamsBaseV1 {
@@ -85,7 +85,7 @@ export class BaseCollectionV1 implements CollectionContract {
     provider: Web3,
     abi: AbiItem[] | AbiItem,
     address: string,
-    rpcUrl?: string,
+    rpcUrl?: string
   ) {
     this.web3 = provider;
     if (rpcUrl) {
@@ -106,7 +106,7 @@ export class BaseCollectionV1 implements CollectionContract {
   }
 
   async createCollection<CreateCollectionParamsBaseV1>(
-    params: CreateCollectionParamsBaseV1,
+    params: CreateCollectionParamsBaseV1
   ): Promise<TransactionResponse> {
     const from = this.getAccount();
 
@@ -114,22 +114,28 @@ export class BaseCollectionV1 implements CollectionContract {
       .createCollection(
         params.collection,
         params.collectionConfig,
-        params.primarySalesReceivers,
+        params.primarySalesReceivers
       )
       .send({ from }, handleTransactionResponse);
   }
 
   async mint<MintParamsBaseV1>(
-    params: MintParamsBaseV1,
+    params: MintParamsBaseV1
   ): Promise<TransactionResponse> {
     const from = this.getAccount();
     return this.contract.methods
-      .mint(params)
-      .send({ from }, handleTransactionResponse);
+      .mint(
+        params.collectionId,
+        params.owner,
+        params.credentials.proof,
+        params.quantity,
+        params.credentials.allowedToMint
+      )
+      .send({ from, value: params.value }, handleTransactionResponse);
   }
 
   async setStatus<SetStatusParamsBaseV1>(
-    params: SetStatusParamsBaseV1,
+    params: SetStatusParamsBaseV1
   ): Promise<TransactionResponse> {
     const from = this.getAccount();
 
@@ -139,7 +145,7 @@ export class BaseCollectionV1 implements CollectionContract {
   }
 
   async setPrice<SetPriceParamsBaseV1>(
-    params: SetPriceParamsBaseV1,
+    params: SetPriceParamsBaseV1
   ): Promise<TransactionResponse> {
     const from = this.getAccount();
     return this.contract.methods
@@ -148,7 +154,7 @@ export class BaseCollectionV1 implements CollectionContract {
   }
 
   async setEditions<SetEditionsParamsBaseV1>(
-    params: SetEditionsParamsBaseV1,
+    params: SetEditionsParamsBaseV1
   ): Promise<TransactionResponse> {
     const from = this.getAccount();
     return this.contract.methods
@@ -157,7 +163,7 @@ export class BaseCollectionV1 implements CollectionContract {
   }
 
   async withdrawFunds<CollectionTransactionBaseParams>(
-    params: CollectionTransactionBaseParams,
+    params: CollectionTransactionBaseParams
   ): Promise<TransactionResponse> {
     const from = this.getAccount();
     return this.contract.methods
@@ -166,7 +172,7 @@ export class BaseCollectionV1 implements CollectionContract {
   }
 
   async getRedeemAmount<RedeemParamsBaseV1>(
-    params: RedeemParamsBaseV1,
+    params: RedeemParamsBaseV1
   ): Promise<QueryResponse<{ amount: number }>> {
     const account = await this.querier.methods
       .accounts(params.collectionId, params.address)
@@ -176,18 +182,19 @@ export class BaseCollectionV1 implements CollectionContract {
       .fundsCollected(params.collectionId)
       .call();
     const availableToRedeem = Number(
-      (account.rate / 10000) * fundsCollected - account.fundsClaimed,
+      (account.rate / 10000) * fundsCollected - account.fundsClaimed
     );
     return { data: { amount: availableToRedeem }, error: null };
   }
 
   async getCollectionInfo<CollectionQueryBaseParams>(
-    params: CollectionQueryBaseParams,
+    params: CollectionQueryBaseParams
   ): Promise<
     QueryResponse<{
       status: CollectionStatus;
       editions: number;
       price: number;
+      mintMode: number;
     }>
   > {
     const collection = await this.querier.methods
@@ -198,6 +205,37 @@ export class BaseCollectionV1 implements CollectionContract {
         status: Number(collection.status),
         editions: Number(collection.editions),
         price: Number(collection.price),
+        mintMode: Number(collection.mintMode),
+      },
+      error: null,
+    };
+  }
+
+  async getCollectionConfig<CollectionQueryBaseParams>(
+    params: CollectionQueryBaseParams
+  ): Promise<
+    QueryResponse<{
+      maxBatchMintAllowed: number;
+      startDate: number;
+      endDate: number;
+      enableBatchMint: boolean;
+    }>
+  > {
+    const config = await contract.methods
+      .collectionsConfig(params.collectionId)
+      .call();
+    if (!config)
+      return {
+        data: null,
+        error: new Error("Collection config not found"),
+      };
+    const maxBatchMintAllowed = Number(config?.maxBatchMintAllowed);
+    return {
+      data: {
+        maxBatchMintAllowed,
+        startDate: Number(config?.startDate),
+        endDate: Number(config?.endDate),
+        enableBatchMint: config?.enableBatchMint || maxBatchMintAllowed > 1,
       },
       error: null,
     };
