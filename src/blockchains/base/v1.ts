@@ -221,7 +221,7 @@ export class BaseCollectionV1 implements CollectionContract {
       enableBatchMint: boolean;
     }>
   > {
-    const config = await contract.methods
+    const config = await this.querier.methods
       .collectionsConfig(params.collectionId)
       .call();
     if (!config)
