@@ -230,12 +230,16 @@ export class BaseCollectionV1 implements CollectionContract {
         error: new Error("Collection config not found"),
       };
     const maxBatchMintAllowed = Number(config?.maxBatchMintAllowed);
+    const enableBatchMint =
+      typeof config?.enableBatchMint === "undefined"
+        ? maxBatchMintAllowed > 1
+        : config?.enableBatchMint;
     return {
       data: {
         maxBatchMintAllowed,
         startDate: Number(config?.startDate),
         endDate: Number(config?.endDate),
-        enableBatchMint: config?.enableBatchMint || maxBatchMintAllowed > 1,
+        enableBatchMint,
       },
       error: null,
     };
