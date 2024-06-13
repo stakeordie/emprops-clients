@@ -51,7 +51,7 @@ export interface FundReceiverBaseV1 {
 }
 
 export interface CollectionConfigBaseV1 {
-  enableBatchMint?: boolean;
+  enableBatchMint: boolean;
   maxBatchMintAllowed: number;
   startDate: number;
   endDate: number | null;
