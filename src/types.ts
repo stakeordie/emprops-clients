@@ -26,9 +26,9 @@ export interface CollectionContract {
     }>>
   getPlatformConfig(): Promise<
     QueryResponse<{
-      maxCollectionSize: number;
-      minMintPrice: number;
-      maxBatchMintSize: number;
+      maxCollectionSize: string;
+      minMintPrice: string;
+      maxBatchMintSize: string;
     }>
   >;
 }
