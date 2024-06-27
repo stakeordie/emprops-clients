@@ -247,9 +247,9 @@ export class BaseCollectionV1 implements CollectionContract {
 
   async getPlatformConfig(): Promise<
     QueryResponse<{
-      maxCollectionSize: number;
-      minMintPrice: number;
-      maxBatchMintSize: number;
+      maxCollectionSize: string;
+      minMintPrice: string;
+      maxBatchMintSize: string;
     }>
   > {
     const config = await this.querier.methods.platformConfig().call();
