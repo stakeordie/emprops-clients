@@ -260,9 +260,9 @@ export class BaseCollectionV1 implements CollectionContract {
       };
     return {
       data: {
-        maxCollectionSize: Number(config.maxCollectionSize),
-        minMintPrice: Number(config.minMintPrice),
-        maxBatchMintSize: Number(config.maxBatchMintSize),
+        maxCollectionSize: config.maxCollectionSize.toString(),
+        minMintPrice: config.minMintPrice.toString(),
+        maxBatchMintSize: config.maxBatchMintSize.toString(),
       },
       error: null,
     };
