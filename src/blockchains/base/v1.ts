@@ -85,10 +85,30 @@ export class BaseCollectionV1 implements CollectionContract {
     private signer: WalletClient,
     private abi: AbiItem[] | AbiItem,
     private address: string,
-    rpcUrl: string
+    rpcUrl: string,
   ) {
-    this.querier = new Web3(rpcUrl).eth.Contract(abi, address);
+    const web3 = new Web3(rpcUrl);
+    this.querier = new web3.eth.Contract(abi, address);
   }
+  private buildTransactionData(value: string, data: string) {
+    const from = this.getAccount();
+    return {
+      account: from,
+      chain: getChain(await this.signer.getChainId()),
+      to: this.address,
+      value,
+      data,
+    };
+  }
+
+  private encodeFunctionData(functionName: string, args: any[]) {
+    return encodeFunctionData({
+      abi: this.abi,
+      functionName,
+      args,
+    });
+  }
+
   private getAccount(): string {
     const account = this.signer.account?.address;
     if (!account) throw new Error("Account not found");
@@ -96,25 +116,14 @@ export class BaseCollectionV1 implements CollectionContract {
   }
 
   async createCollection<CreateCollectionParamsBaseV1>(
-    params: CreateCollectionParamsBaseV1
+    params: CreateCollectionParamsBaseV1,
   ): Promise<TransactionResponse> {
-    const from = this.getAccount();
-    const args = encodeFunctionData({
-      abi: this.abi,
-      functionName: "createCollection",
-      args: [
-        params.collection,
-        params.collectionConfig,
-        params.primarySalesReceivers,
-      ],
-    });
-    const transaction = {
-      account: from,
-      chain: getChain(await this.signer.getChainId()),
-      to: this.address,
-      value: "0",
-      data: args,
-    }
+    const args = this.encodeFunctionData("createCollection", [
+      params.collection,
+      params.collectionConfig,
+      params.primarySalesReceivers,
+    ]);
+    const transaction = this.buildTransactionData("0", args);
     return this.signer.sendTransaction(transaction);
   }
 
@@ -138,9 +147,7 @@ export class BaseCollectionV1 implements CollectionContract {
   ): Promise<TransactionResponse> {
     const from = this.getAccount();
 
-    return this.contract.methods
-      .setStatus(params.collectionId, params.status)
-      .send({ from }, handleTransactionResponse);
+    return this.signer.sendTransaction(transaction);
   }
 
   async setPrice<SetPriceParamsBaseV1>(
