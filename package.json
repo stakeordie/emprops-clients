@@ -12,7 +12,10 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
-    "typescript": "^5.4.5"
+    "@dynamic-labs/utils": "^2.2.7",
+    "typescript": "^5.4.5",
+    "viem": "^2.16.5",
+    "web3": "^4.10.0"
   },
   "devDependencies": {
     "@types/node": "^20.12.13",

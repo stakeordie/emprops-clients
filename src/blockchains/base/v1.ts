@@ -11,6 +11,8 @@ import {
   TransactionResponse,
 } from "../../types";
 import { handleTransactionResponse } from "../utils";
+import { WalletClient, encodeFunctionData } from "viem";
+import { getChain } from "@dynamic-labs/utils";
 export interface CollectionTransactionBaseParams
   extends CollectionQueryBaseParams {}
 export interface CollectionQueryBaseParams {
@@ -78,101 +80,112 @@ export interface CollectionArgsBaseV1 {
 }
 
 export class BaseCollectionV1 implements CollectionContract {
-  contract;
   querier;
-  web3;
   constructor(
-    provider: Web3,
-    abi: AbiItem[] | AbiItem,
-    address: string,
-    rpcUrl?: string
+    private signer: WalletClient,
+    private abi: AbiItem[] | AbiItem,
+    private address: string,
+    rpcUrl: string,
   ) {
-    this.web3 = provider;
-    if (rpcUrl) {
-      // Use custom rpc form query information
-      const querierProvider = new Web3(rpcUrl);
-      this.querier = new querierProvider.eth.Contract(abi, address);
-    } else {
-      // Use provider rpc to query information (wallet extension)
-      this.querier = new provider.eth.Contract(abi, address);
-    }
-
-    this.contract = new provider.eth.Contract(abi, address);
+    const web3 = new Web3(rpcUrl);
+    this.querier = new web3.eth.Contract(this.abi, address);
   }
+  private async buildTransactionData(value: string, data: string) {
+    const from = this.getAccount();
+    return {
+      account: from,
+      chain: getChain(await this.signer.getChainId()),
+      to: this.address,
+      value,
+      data,
+    };
+  }
+
+  private encodeFunctionData(functionName: string, args: any[]) {
+    return encodeFunctionData({
+      abi: this.abi,
+      functionName,
+      args,
+    });
+  }
+
   private getAccount(): string {
-    const account = this.web3.currentProvider.selectedAddress;
+    const account = this.signer.account?.address;
     if (!account) throw new Error("Account not found");
     return account;
   }
 
   async createCollection<CreateCollectionParamsBaseV1>(
-    params: CreateCollectionParamsBaseV1
+    params: CreateCollectionParamsBaseV1,
   ): Promise<TransactionResponse> {
-    const from = this.getAccount();
-
-    return this.contract.methods
-      .createCollection(
-        params.collection,
-        params.collectionConfig,
-        params.primarySalesReceivers
-      )
-      .send({ from }, handleTransactionResponse);
+    const args = this.encodeFunctionData("createCollection", [
+      params.collection,
+      params.collectionConfig,
+      params.primarySalesReceivers,
+    ]);
+    const transaction = await this.buildTransactionData("0", args);
+    return this.signer.sendTransaction(transaction);
   }
 
   async mint<MintParamsBaseV1>(
-    params: MintParamsBaseV1
+    params: MintParamsBaseV1,
   ): Promise<TransactionResponse> {
-    const from = this.getAccount();
-    return this.contract.methods
-      .mint(
-        params.collectionId,
-        params.owner,
-        params.credentials.proof,
-        params.quantity,
-        params.credentials.allowedToMint
-      )
-      .send({ from, value: params.value }, handleTransactionResponse);
+    const args = this.encodeFunctionData("mint", [
+      params.collectionId,
+      params.owner,
+      params.credentials.proof,
+      params.quantity,
+      params.credentials.allowedToMint,
+    ]);
+    const transaction = await this.buildTransactionData(params.value, args);
+    return this.signer.sendTransaction(transaction);
   }
 
   async setStatus<SetStatusParamsBaseV1>(
-    params: SetStatusParamsBaseV1
+    params: SetStatusParamsBaseV1,
   ): Promise<TransactionResponse> {
-    const from = this.getAccount();
-
-    return this.contract.methods
-      .setStatus(params.collectionId, params.status)
-      .send({ from }, handleTransactionResponse);
+    const args = this.encodeFunctionData("setStatus", [
+      params.collectionId,
+      params.status,
+    ]);
+    const transaction = await this.buildTransactionData("0", args);
+    return this.signer.sendTransaction(transaction);
   }
 
   async setPrice<SetPriceParamsBaseV1>(
-    params: SetPriceParamsBaseV1
+    params: SetPriceParamsBaseV1,
   ): Promise<TransactionResponse> {
-    const from = this.getAccount();
-    return this.contract.methods
-      .setPrice(params.collectionId, params.price)
-      .send({ from }, handleTransactionResponse);
+    const args = this.encodeFunctionData("setPrice", [
+      params.collectionId,
+      params.price,
+    ]);
+    const transaction = await this.buildTransactionData("0", args);
+    return this.signer.sendTransaction(transaction);
   }
 
   async setEditions<SetEditionsParamsBaseV1>(
-    params: SetEditionsParamsBaseV1
+    params: SetEditionsParamsBaseV1,
   ): Promise<TransactionResponse> {
-    const from = this.getAccount();
-    return this.contract.methods
-      .setTotalEditions(params.collectionId, params.editions)
-      .send({ from }, handleTransactionResponse);
+    const args = this.encodeFunctionData("setTotalEditions", [
+      params.collectionId,
+      params.editions,
+    ]);
+    const transaction = await this.buildTransactionData("0", args);
+    return this.signer.sendTransaction(transaction);
   }
 
   async withdrawFunds<CollectionTransactionBaseParams>(
-    params: CollectionTransactionBaseParams
+    params: CollectionTransactionBaseParams,
   ): Promise<TransactionResponse> {
-    const from = this.getAccount();
-    return this.contract.methods
-      .withdrawFunds(params.collectionId)
-      .send({ from }, handleTransactionResponse);
+    const args = this.encodeFunctionData("setTotalEditions", [
+      params.collectionId,
+    ]);
+    const transaction = await this.buildTransactionData("0", args);
+    return this.signer.sendTransaction(transaction);
   }
 
   async getRedeemAmount<RedeemParamsBaseV1>(
-    params: RedeemParamsBaseV1
+    params: RedeemParamsBaseV1,
   ): Promise<QueryResponse<{ amount: number }>> {
     const account = await this.querier.methods
       .accounts(params.collectionId, params.address)
@@ -182,13 +195,13 @@ export class BaseCollectionV1 implements CollectionContract {
       .fundsCollected(params.collectionId)
       .call();
     const availableToRedeem = Number(
-      (account.rate / 10000) * fundsCollected - account.fundsClaimed
+      (account.rate / 10000) * fundsCollected - account.fundsClaimed,
     );
     return { data: { amount: availableToRedeem }, error: null };
   }
 
   async getCollectionInfo<CollectionQueryBaseParams>(
-    params: CollectionQueryBaseParams
+    params: CollectionQueryBaseParams,
   ): Promise<
     QueryResponse<{
       status: CollectionStatus;
@@ -212,7 +225,7 @@ export class BaseCollectionV1 implements CollectionContract {
   }
 
   async getCollectionConfig<CollectionQueryBaseParams>(
-    params: CollectionQueryBaseParams
+    params: CollectionQueryBaseParams,
   ): Promise<
     QueryResponse<{
       maxBatchMintAllowed: number;

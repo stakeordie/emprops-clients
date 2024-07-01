@@ -1,14 +1,14 @@
-import Web3 from "web3";
 import { BaseCollectionV1 } from "./blockchains/base/v1";
 import { BlockchainType, CollectionContract, VersionType } from "./types";
+import { WalletClient } from "viem";
 
 export class BaseFactoryContract {
   public createCollectionContract(
-    walletProvider: Web3,
+    walletProvider: WalletClient,
     version: VersionType,
     address: string,
     abi: any,
-    rpcUrl?: string,
+    rpcUrl: string,
   ): CollectionContract {
     if (version === "v1") {
       return new BaseCollectionV1(walletProvider, abi, address, rpcUrl);
@@ -24,11 +24,11 @@ export class ContractFactoryFacade {
     version: VersionType,
     address: string,
     abi: any,
-    rpcUrl?: string,
+    rpcUrl: string,
   ): CollectionContract | undefined {
     if (blockchain === "BASE") {
       return new BaseFactoryContract().createCollectionContract(
-        walletProvider as Web3,
+        walletProvider as WalletClient,
         version,
         address,
         abi,
