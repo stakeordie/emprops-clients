@@ -11,6 +11,8 @@ import {
   TransactionResponse,
 } from "../../types";
 import { handleTransactionResponse } from "../utils";
+import { WalletClient, encodeFunctionData } from "viem";
+import { getChain } from "@dynamic-labs/utils";
 export interface CollectionTransactionBaseParams
   extends CollectionQueryBaseParams {}
 export interface CollectionQueryBaseParams {
@@ -78,29 +80,17 @@ export interface CollectionArgsBaseV1 {
 }
 
 export class BaseCollectionV1 implements CollectionContract {
-  contract;
   querier;
-  web3;
   constructor(
-    provider: Web3,
-    abi: AbiItem[] | AbiItem,
-    address: string,
-    rpcUrl?: string
+    private signer: WalletClient,
+    private abi: AbiItem[] | AbiItem,
+    private address: string,
+    rpcUrl: string
   ) {
-    this.web3 = provider;
-    if (rpcUrl) {
-      // Use custom rpc form query information
-      const querierProvider = new Web3(rpcUrl);
-      this.querier = new querierProvider.eth.Contract(abi, address);
-    } else {
-      // Use provider rpc to query information (wallet extension)
-      this.querier = new provider.eth.Contract(abi, address);
-    }
-
-    this.contract = new provider.eth.Contract(abi, address);
+    this.querier = new Web3(rpcUrl).eth.Contract(abi, address);
   }
   private getAccount(): string {
-    const account = this.web3.currentProvider.selectedAddress;
+    const account = this.signer.account?.address;
     if (!account) throw new Error("Account not found");
     return account;
   }
@@ -109,14 +99,23 @@ export class BaseCollectionV1 implements CollectionContract {
     params: CreateCollectionParamsBaseV1
   ): Promise<TransactionResponse> {
     const from = this.getAccount();
-
-    return this.contract.methods
-      .createCollection(
+    const args = encodeFunctionData({
+      abi: this.abi,
+      functionName: "createCollection",
+      args: [
         params.collection,
         params.collectionConfig,
-        params.primarySalesReceivers
-      )
-      .send({ from }, handleTransactionResponse);
+        params.primarySalesReceivers,
+      ],
+    });
+    const transaction = {
+      account: from,
+      chain: getChain(await this.signer.getChainId()),
+      to: this.address,
+      value: "0",
+      data: args,
+    }
+    return this.signer.sendTransaction(transaction);
   }
 
   async mint<MintParamsBaseV1>(
