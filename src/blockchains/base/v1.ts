@@ -90,7 +90,7 @@ export class BaseCollectionV1 implements CollectionContract {
     const web3 = new Web3(rpcUrl);
     this.querier = new web3.eth.Contract(abi, address);
   }
-  private buildTransactionData(value: string, data: string) {
+  private async buildTransactionData(value: string, data: string) {
     const from = this.getAccount();
     return {
       account: from,
@@ -123,7 +123,7 @@ export class BaseCollectionV1 implements CollectionContract {
       params.collectionConfig,
       params.primarySalesReceivers,
     ]);
-    const transaction = this.buildTransactionData("0", args);
+    const transaction = await this.buildTransactionData("0", args);
     return this.signer.sendTransaction(transaction);
   }
 
