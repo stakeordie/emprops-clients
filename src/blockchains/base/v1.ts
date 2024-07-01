@@ -88,7 +88,7 @@ export class BaseCollectionV1 implements CollectionContract {
     rpcUrl: string,
   ) {
     const web3 = new Web3(rpcUrl);
-    this.querier = new web3.eth.Contract(abi, address);
+    this.querier = new web3.eth.Contract(this.abi, address);
   }
   private async buildTransactionData(value: string, data: string) {
     const from = this.getAccount();
