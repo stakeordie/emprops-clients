@@ -1,3 +1,5 @@
+import { SendTransactionReturnType } from "viem";
+
 export interface SmartContract<T, A> {
   new (provider: T, abi: A, address: string): void;
 }
@@ -33,18 +35,14 @@ export interface CollectionContract {
   >;
 }
 
-export interface TransactionResponse {
-  data: {
-    transactionHash: string;
-  };
-  error: Error | null;
-}
+export type TransactionResponse = SendTransactionReturnType 
+
 export interface QueryResponse<T> {
   data: T | null;
   error: Error | null;
 }
 export type ContractType = "collection" | "token";
-export type BlockchainType = "BASE";
+export type BlockchainType = "BASE" | "ETHEREUM";
 export type VersionType = "v1";
 export enum CollectionStatus {
   OFF = 0,
