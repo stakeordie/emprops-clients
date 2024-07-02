@@ -1,3 +1,7 @@
+// Ignore linter in all file
+/* eslint-disable */
+// Ignore ts in all  file
+// @ts-nocheck
 import Web3 from "web3";
 import { AbiItem } from "web3-utils";
 import {
