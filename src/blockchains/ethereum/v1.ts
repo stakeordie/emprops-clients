@@ -93,6 +93,7 @@ export class EthereumCollectionV1 implements CollectionContract {
     private abi: AbiItem[] | AbiItem,
     private address: string,
     rpcUrl: string,
+    private version: string,
   ) {
     const web3 = new Web3(rpcUrl);
     this.querier = new web3.eth.Contract(this.abi, address);

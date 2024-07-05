@@ -13,7 +13,7 @@ export class BaseFactoryContract {
     rpcUrl: string,
   ): CollectionContract {
     if (version === "v1") {
-      return new BaseCollectionV1(walletProvider, abi, address, rpcUrl);
+      return new BaseCollectionV1(walletProvider, abi, address, rpcUrl, version);
     }
     throw new Error("Invalid BASE contract version");
   }
@@ -28,10 +28,10 @@ export class EthereumFactoryContract {
     rpcUrl: string,
   ): CollectionContract {
     if (version === "v0") {
-      return new EthereumCollectionV0(walletProvider, abi, address, rpcUrl);
+      return new EthereumCollectionV0(walletProvider, abi, address, rpcUrl, version);
     }
     if (version === "v1") {
-      return new EthereumCollectionV1(walletProvider, abi, address, rpcUrl);
+      return new EthereumCollectionV1(walletProvider, abi, address, rpcUrl, version);
     }
     throw new Error("Invalid ETHEREUM contract version");
   }
