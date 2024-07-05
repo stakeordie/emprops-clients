@@ -19,6 +19,7 @@ export interface CollectionContract {
       mintMode: number;
     }>
   >;
+  getTokensMinted<T>(params: T): Promise<QueryResponse<{ tokensMinted: number }>>;
   getCollectionConfig<T>(params:T): Promise<
     QueryResponse<{
       maxBatchMintAllowed: number;
@@ -43,7 +44,7 @@ export interface QueryResponse<T> {
 }
 export type ContractType = "collection" | "token";
 export type BlockchainType = "BASE" | "ETHEREUM";
-export type VersionType = "v1";
+export type VersionType = "v0" | "v1" ;
 export enum CollectionStatus {
   OFF = 0,
   ON = 1,

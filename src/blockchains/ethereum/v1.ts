@@ -17,6 +17,10 @@ export interface CollectionTransactionEthereumParams
 export interface CollectionQueryEthereumParams {
   collectionId: number;
 }
+
+export interface TokensMintedQueryParams extends CollectionQueryEthereumParams {
+  address: string;
+}
 export interface SetStatusParamsEthereumV1 extends CollectionTransactionEthereumParams {
   status: CollectionStatus;
 }
@@ -279,6 +283,22 @@ export class EthereumCollectionV1 implements CollectionContract {
         maxCollectionSize: config.maxCollectionSize.toString(),
         minMintPrice: config.minMintPrice.toString(),
         maxBatchMintSize: config.maxBatchMintSize.toString(),
+      },
+      error: null,
+    };
+  }
+  async getTokensMinted<TokensMintedQueryParams>(params: TokensMintedQueryParams): Promise<
+    QueryResponse<{
+      tokensMinted: number;
+    }>
+  > {
+    const tokensMinted: number = await this.querier.methods
+      .accounts(params.collectionId, params.address)
+      .call();
+
+    return {
+      data: {
+        tokensMinted: tokensMinted || 0,
       },
       error: null,
     };

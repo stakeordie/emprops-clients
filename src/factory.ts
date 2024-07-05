@@ -1,4 +1,5 @@
 import { BaseCollectionV1 } from "./blockchains/base/v1";
+import { EthereumCollectionV0 } from "./blockchains/ethereum/v0";
 import { EthereumCollectionV1 } from "./blockchains/ethereum/v1";
 import { BlockchainType, CollectionContract, VersionType } from "./types";
 import { WalletClient } from "viem";
@@ -26,6 +27,9 @@ export class EthereumFactoryContract {
     abi: any,
     rpcUrl: string,
   ): CollectionContract {
+    if (version === "v0") {
+      return new EthereumCollectionV0(walletProvider, abi, address, rpcUrl);
+    }
     if (version === "v1") {
       return new EthereumCollectionV1(walletProvider, abi, address, rpcUrl);
     }
