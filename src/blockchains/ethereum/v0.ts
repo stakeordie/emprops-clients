@@ -10,32 +10,30 @@ import {
   QueryResponse,
   TransactionResponse,
 } from "../../types";
-import { handleTransactionResponse } from "../utils";
 import { WalletClient, encodeFunctionData } from "viem";
 import { getChain } from "@dynamic-labs/utils";
-export interface CollectionTransactionBaseParams
-  extends CollectionQueryBaseParams {}
-export interface CollectionQueryBaseParams {
+export interface CollectionTransactionEthereumParams
+  extends CollectionQueryEthereumParams {}
+export interface CollectionQueryEthereumParams {
   collectionId: number;
 }
-export interface TokensMintedQueryParams extends CollectionQueryBaseParams {
+export interface TokensMintedQueryParams extends CollectionQueryEthereumParams {
   address: string;
 }
-export interface SetStatusParamsBaseV1 extends CollectionTransactionBaseParams {
+export interface SetStatusParamsEthereumV0 extends CollectionTransactionEthereumParams {
   status: CollectionStatus;
 }
-export interface SetPriceParamsBaseV1 extends CollectionTransactionBaseParams {
+export interface SetPriceParamsEthereumV0 extends CollectionTransactionEthereumParams {
   price: string;
 }
-export interface SetEditionsParamsBaseV1
-  extends CollectionTransactionBaseParams {
+export interface SetEditionsParamsEthereumV0
+  extends CollectionTransactionEthereumParams {
   editions: number;
 }
 
-export interface MintParamsBaseV1 {
+export interface MintParamsEthereumV0 {
   collectionId: number;
   owner: string;
-  quantity: number;
   // Allowlist credentials
   credentials?: {
     proof: string[];
@@ -44,36 +42,36 @@ export interface MintParamsBaseV1 {
   value: string;
 }
 
-export interface CreateCollectionParamsBaseV1 {
-  collection: CollectionArgsBaseV1;
-  collectionConfig: CollectionConfigBaseV1;
-  primarySalesReceivers: FundReceiverBaseV1[];
+export interface CreateCollectionParamsEthereumV0 {
+  collection: CollectionArgsEthereumV0;
+  collectionConfig: CollectionConfigEthereumV0;
+  primarySalesReceivers: FundReceiverEthereumV0[];
 }
 
-export interface FundReceiverBaseV1 {
+export interface FundReceiverEthereumV0 {
   addr: string;
   rate: number;
 }
 
-export interface CollectionConfigBaseV1 {
+export interface CollectionConfigEthereumV0 {
   enableBatchMint: boolean;
   maxBatchMintAllowed: number;
   startDate: number;
   endDate: number | null;
 }
-export enum MintModeBaseV1 {
+export enum MintModeEthereumV0 {
   PUBLIC = 0,
   ALLOW_LIST = 1,
   FREE_LIST = 2,
 }
 
-export interface CollectionArgsBaseV1 {
+export interface CollectionArgsEthereumV0 {
   author: string;
   editions: number;
   freeMinter: string;
   status: CollectionStatus;
   metadata: string;
-  mintMode: MintModeBaseV1;
+  mintMode: MintModeEthereumV0;
   tokenContractAddress: string;
   price: string;
   royalty: number;
@@ -82,13 +80,17 @@ export interface CollectionArgsBaseV1 {
   royaltyAddress: string;
 }
 
-export class BaseCollectionV1 implements CollectionContract {
+export interface RedeemParamsEthereumV0  extends CollectionQueryEthereumParams {
+  address: string;
+} 
+
+export class EthereumCollectionV0 implements CollectionContract {
   querier;
   constructor(
     private signer: WalletClient,
     private abi: AbiItem[] | AbiItem,
     private address: string,
-    rpcUrl: string
+    rpcUrl: string,
   ) {
     const web3 = new Web3(rpcUrl);
     this.querier = new web3.eth.Contract(this.abi, address);
@@ -118,8 +120,8 @@ export class BaseCollectionV1 implements CollectionContract {
     return account;
   }
 
-  async createCollection<CreateCollectionParamsBaseV1>(
-    params: CreateCollectionParamsBaseV1
+  async createCollection<CreateCollectionParamsEthereumV0>(
+    params: CreateCollectionParamsEthereumV0,
   ): Promise<TransactionResponse> {
     const args = this.encodeFunctionData("createCollection", [
       params.collection,
@@ -130,22 +132,21 @@ export class BaseCollectionV1 implements CollectionContract {
     return this.signer.sendTransaction(transaction);
   }
 
-  async mint<MintParamsBaseV1>(
-    params: MintParamsBaseV1
+  async mint<MintParamsEthereumV0>(
+    params: MintParamsEthereumV0,
   ): Promise<TransactionResponse> {
     const args = this.encodeFunctionData("mint", [
       params.collectionId,
       params.owner,
       params.credentials.proof,
-      params.quantity,
       params.credentials.allowedToMint,
     ]);
     const transaction = await this.buildTransactionData(params.value, args);
     return this.signer.sendTransaction(transaction);
   }
 
-  async setStatus<SetStatusParamsBaseV1>(
-    params: SetStatusParamsBaseV1
+  async setStatus<SetStatusParamsEthereumV0>(
+    params: SetStatusParamsEthereumV0,
   ): Promise<TransactionResponse> {
     const args = this.encodeFunctionData("setStatus", [
       params.collectionId,
@@ -155,8 +156,8 @@ export class BaseCollectionV1 implements CollectionContract {
     return this.signer.sendTransaction(transaction);
   }
 
-  async setPrice<SetPriceParamsBaseV1>(
-    params: SetPriceParamsBaseV1
+  async setPrice<SetPriceParamsEthereumV0>(
+    params: SetPriceParamsEthereumV0,
   ): Promise<TransactionResponse> {
     const args = this.encodeFunctionData("setPrice", [
       params.collectionId,
@@ -166,8 +167,8 @@ export class BaseCollectionV1 implements CollectionContract {
     return this.signer.sendTransaction(transaction);
   }
 
-  async setEditions<SetEditionsParamsBaseV1>(
-    params: SetEditionsParamsBaseV1
+  async setEditions<SetEditionsParamsEthereumV0>(
+    params: SetEditionsParamsEthereumV0,
   ): Promise<TransactionResponse> {
     const args = this.encodeFunctionData("setTotalEditions", [
       params.collectionId,
@@ -177,8 +178,8 @@ export class BaseCollectionV1 implements CollectionContract {
     return this.signer.sendTransaction(transaction);
   }
 
-  async withdrawFunds<CollectionTransactionBaseParams>(
-    params: CollectionTransactionBaseParams
+  async withdrawFunds<CollectionTransactionEthereumParams>(
+    params: CollectionTransactionEthereumParams,
   ): Promise<TransactionResponse> {
     const args = this.encodeFunctionData("setTotalEditions", [
       params.collectionId,
@@ -187,24 +188,17 @@ export class BaseCollectionV1 implements CollectionContract {
     return this.signer.sendTransaction(transaction);
   }
 
-  async getRedeemAmount<RedeemParamsBaseV1>(
-    params: RedeemParamsBaseV1
+  async getRedeemAmount<RedeemParamsEthereumV0>(
+    params: RedeemParamsEthereumV0,
   ): Promise<QueryResponse<{ amount: number }>> {
-    const account = await this.querier.methods
-      .accounts(params.collectionId, params.address)
-      .call();
-    if (!account) return { data: null, error: new Error("Account not found") };
     const fundsCollected = await this.querier.methods
       .fundsCollected(params.collectionId)
       .call();
-    const availableToRedeem = Number(
-      (account.rate / 10000) * fundsCollected - account.fundsClaimed
-    );
-    return { data: { amount: availableToRedeem }, error: null };
+    return { data: { amount: fundsCollected }, error: null };
   }
 
-  async getCollectionInfo<CollectionQueryBaseParams>(
-    params: CollectionQueryBaseParams
+  async getCollectionInfo<CollectionQueryEthereumParams>(
+    params: CollectionQueryEthereumParams,
   ): Promise<
     QueryResponse<{
       status: CollectionStatus;
@@ -227,8 +221,8 @@ export class BaseCollectionV1 implements CollectionContract {
     };
   }
 
-  async getCollectionConfig<CollectionQueryBaseParams>(
-    params: CollectionQueryBaseParams
+  async getCollectionConfig<CollectionQueryEthereumParams>(
+    params: CollectionQueryEthereumParams,
   ): Promise<
     QueryResponse<{
       maxBatchMintAllowed: number;
@@ -237,25 +231,12 @@ export class BaseCollectionV1 implements CollectionContract {
       enableBatchMint: boolean;
     }>
   > {
-    const config = await this.querier.methods
-      .collectionsConfig(params.collectionId)
-      .call();
-    if (!config)
-      return {
-        data: null,
-        error: new Error("Collection config not found"),
-      };
-    const maxBatchMintAllowed = Number(config?.maxBatchMintAllowed);
-    const enableBatchMint =
-      typeof config?.enableBatchMint === "undefined"
-        ? maxBatchMintAllowed > 1
-        : config?.enableBatchMint;
     return {
       data: {
-        maxBatchMintAllowed,
-        startDate: Number(config?.startDate),
-        endDate: Number(config?.endDate),
-        enableBatchMint,
+        maxBatchMintAllowed: 1,
+        startDate: 0,
+        endDate: 0,
+        enableBatchMint: false,
       },
       error: null,
     };
@@ -268,36 +249,31 @@ export class BaseCollectionV1 implements CollectionContract {
       maxBatchMintSize: string;
     }>
   > {
-    const config = await this.querier.methods.platformConfig().call();
-    if (!config)
-      return {
-        data: null,
-        error: new Error("Platform config not found"),
-      };
     return {
       data: {
-        maxCollectionSize: config.maxCollectionSize.toString(),
-        minMintPrice: config.minMintPrice.toString(),
-        maxBatchMintSize: config.maxBatchMintSize.toString(),
+        maxBatchMintAllowed: 1,
+        startDate: 0,
+        endDate: 0,
+        enableBatchMint: false,
       },
       error: null,
     };
   }
 
   async getTokensMinted<TokensMintedQueryParams>(params: TokensMintedQueryParams): Promise<
-    QueryResponse<{
-      tokensMinted: number;
-    }>
-  > {
-    const tokensMinted: number = await this.querier.methods
-      .accounts(params.collectionId, params.address)
-      .call();
+  QueryResponse<{
+    tokensMinted: number;
+  }>
+> {
+  const tokensMinted: number = await this.querier.methods
+    .accounts(params.collectionId, params.address)
+    .call();
 
-    return {
-      data: {
-        tokensMinted: tokensMinted || 0,
-      },
-      error: null,
-    };
-  }
+  return {
+    data: {
+      tokensMinted: tokensMinted || 0,
+    },
+    error: null,
+  };
+}
 }
