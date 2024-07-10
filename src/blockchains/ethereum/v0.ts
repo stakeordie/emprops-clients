@@ -270,12 +270,12 @@ export class EthereumCollectionV0 implements CollectionContract {
   }>
 > {  
 
-  const tokensMinted: number = await this.querier.methods
+  const tokensMinted = await this.querier.methods
     .allowlistCount(params.collectionId, params.address)
     .call();
   
   const response = {
-    allowlistCount: tokensMinted || 0,
+    allowlistCount: Number(tokensMinted) || 0,
     freelistCount: 0
   }
 
