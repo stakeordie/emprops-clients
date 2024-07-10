@@ -82,7 +82,7 @@ export interface CollectionArgsEthereumV0 {
 
 export interface RedeemParamsEthereumV0  extends CollectionQueryEthereumParams {
   address: string;
-} 
+}
 
 export class EthereumCollectionV0 implements CollectionContract {
   querier;
@@ -263,16 +263,25 @@ export class EthereumCollectionV0 implements CollectionContract {
 
   async getTokensMinted<TokensMintedQueryParams>(params: TokensMintedQueryParams): Promise<
   QueryResponse<{
-    tokensMinted: number;
+    tokensMinted: {
+      allowlistCount: number;
+      freelistCount: number;  
+    };
   }>
-> {
+> {  
+
   const tokensMinted: number = await this.querier.methods
-    .accounts(params.collectionId, params.address)
+    .allowlistCount(params.collectionId, params.address)
     .call();
+  
+  const response = {
+    allowlistCount: tokensMinted || 0,
+    freelistCount: 0
+  }
 
   return {
     data: {
-      tokensMinted: tokensMinted || 0,
+      tokensMinted: response,
     },
     error: null,
   };

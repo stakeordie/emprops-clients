@@ -290,16 +290,23 @@ export class EthereumCollectionV1 implements CollectionContract {
   }
   async getTokensMinted<TokensMintedQueryParams>(params: TokensMintedQueryParams): Promise<
     QueryResponse<{
-      tokensMinted: number;
+      tokensMinted: {
+        allowlistCount: number;
+        freelistCount: number;  
+      };
     }>
-  > {
-    const tokensMinted: number = await this.querier.methods
+  > {    
+
+    const tokensMinted: {
+      allowlistCount: number;
+      freelistCount: number;  
+    } = await this.querier.methods
       .accounts(params.collectionId, params.address)
       .call();
 
     return {
       data: {
-        tokensMinted: tokensMinted || 0,
+        tokensMinted: tokensMinted || { allowlistCount: 0, freelistCount: 0},
       },
       error: null,
     };

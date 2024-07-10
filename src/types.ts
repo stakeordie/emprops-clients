@@ -19,7 +19,13 @@ export interface CollectionContract {
       mintMode: number;
     }>
   >;
-  getTokensMinted<T>(params: T): Promise<QueryResponse<{ tokensMinted: number }>>;
+  getTokensMinted<T>(params: T): Promise<
+    QueryResponse<{ 
+      tokensMinted: {
+        allowlistCount: number;
+        freelistCount: number;  
+      } 
+    }>>;
   getCollectionConfig<T>(params:T): Promise<
     QueryResponse<{
       maxBatchMintAllowed: number;
