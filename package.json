@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "description": "Core clients EmProps library",
   "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "types": "types/index.d.ts",
   "files": [
     "dist",
     "types"
