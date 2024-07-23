@@ -22,7 +22,7 @@ export class DiscordClient {
     if (!this.isLogged) throw new Error("Client is not logged");
 
     const channel = this.client.channels.cache.find(
-      (channel) => channel.id === channelId
+      (channel) => channel.id === channelId,
     ) as TextChannel;
     if (!channel) throw new Error("No channel");
     channel.send({

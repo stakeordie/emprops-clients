@@ -1,6 +1,6 @@
-import { BaseCollectionV1 } from "./blockchains/base/v1";
-import { EthereumCollectionV0 } from "./blockchains/ethereum/v0";
-import { EthereumCollectionV1 } from "./blockchains/ethereum/v1";
+import { BaseCollectionV1 } from "./base/v1";
+import { EthereumCollectionV0 } from "./ethereum/v0";
+import { EthereumCollectionV1 } from "./ethereum/v1";
 import { BlockchainType, CollectionContract, VersionType } from "./types";
 import { WalletClient } from "viem";
 
@@ -13,7 +13,13 @@ export class BaseFactoryContract {
     rpcUrl: string,
   ): CollectionContract {
     if (version === "v1") {
-      return new BaseCollectionV1(walletProvider, abi, address, rpcUrl, version);
+      return new BaseCollectionV1(
+        walletProvider,
+        abi,
+        address,
+        rpcUrl,
+        version,
+      );
     }
     throw new Error("Invalid BASE contract version");
   }
@@ -28,10 +34,22 @@ export class EthereumFactoryContract {
     rpcUrl: string,
   ): CollectionContract {
     if (version === "v0") {
-      return new EthereumCollectionV0(walletProvider, abi, address, rpcUrl, version);
+      return new EthereumCollectionV0(
+        walletProvider,
+        abi,
+        address,
+        rpcUrl,
+        version,
+      );
     }
     if (version === "v1") {
-      return new EthereumCollectionV1(walletProvider, abi, address, rpcUrl, version);
+      return new EthereumCollectionV1(
+        walletProvider,
+        abi,
+        address,
+        rpcUrl,
+        version,
+      );
     }
     throw new Error("Invalid ETHEREUM contract version");
   }
@@ -55,14 +73,14 @@ export class ContractFactoryFacade {
         rpcUrl,
       );
     }
-    if(blockchain === "ETHEREUM") {
+    if (blockchain === "ETHEREUM") {
       return new EthereumFactoryContract().createCollectionContract(
         walletProvider as WalletClient,
         version,
         address,
         abi,
         rpcUrl,
-      )
+      );
     }
     return undefined;
   }

@@ -1,0 +1,31 @@
+name: Publish NPM
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v2
+
+      - name: Install npm toolchain
+        uses: actions/setup-node@v2
+        with:
+          node-version: 18
+
+      - run: npm install
+      - run: npm run build
+      - run: npm version ${{github.ref_name}} --git-tag-version false
+      - run: npm pkg set version=${{github.ref_name}}
+      - uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_message: "release: ${{github.ref_name}}"
+          branch: master
+          file_pattern: package.json
+      - run: echo "//registry.npmjs.org/:_authToken=${NODE_AUTH_TOKEN}" > .npmrc
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.npm_token}}
+      - run: npm publish --access public

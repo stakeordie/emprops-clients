@@ -9,7 +9,7 @@ import {
   CollectionStatus,
   QueryResponse,
   TransactionResponse,
-} from "../../types";
+} from "../types";
 import { WalletClient, encodeFunctionData } from "viem";
 import { getChain } from "@dynamic-labs/utils";
 export interface CollectionTransactionEthereumParams
