@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@dynamic-labs/utils": "^2.2.7",
+    "discord.js": "^14.15.3",
     "typescript": "^5.4.5",
     "viem": "^2.16.5",
     "web3": "^4.10.0"
