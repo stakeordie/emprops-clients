@@ -1,5 +1,5 @@
 {
-  "name": "@emprops/emprops-clients",
+  "name": "@stakeordie/emprops-clients",
   "version": "0.1.1",
   "description": "Core clients EmProps library",
   "main": "dist/index.js",
