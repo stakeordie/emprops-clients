@@ -20,19 +20,21 @@ export interface CollectionContract {
     }>
   >;
   getTokensMinted<T>(params: T): Promise<
-    QueryResponse<{ 
+    QueryResponse<{
       tokensMinted: {
         allowlistCount: number;
-        freelistCount: number;  
-      } 
-    }>>;
-  getCollectionConfig<T>(params:T): Promise<
+        freelistCount: number;
+      };
+    }>
+  >;
+  getCollectionConfig<T>(params: T): Promise<
     QueryResponse<{
       maxBatchMintAllowed: number;
       startDate: number;
       endDate: number;
       enableBatchMint: boolean;
-    }>>
+    }>
+  >;
   getPlatformConfig(): Promise<
     QueryResponse<{
       maxCollectionSize: string;
@@ -42,7 +44,7 @@ export interface CollectionContract {
   >;
 }
 
-export type TransactionResponse = SendTransactionReturnType 
+export type TransactionResponse = SendTransactionReturnType;
 
 export interface QueryResponse<T> {
   data: T | null;
@@ -50,7 +52,7 @@ export interface QueryResponse<T> {
 }
 export type ContractType = "collection" | "token";
 export type BlockchainType = "BASE" | "ETHEREUM";
-export type VersionType = "v0" | "v1" ;
+export type VersionType = "v0" | "v1";
 export enum CollectionStatus {
   OFF = 0,
   ON = 1,
