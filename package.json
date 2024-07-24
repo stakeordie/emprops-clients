@@ -1,5 +1,5 @@
 {
-  "name": "@emprops/clients",
+  "name": "@emprops/emprops-clients",
   "version": "0.0.1",
   "description": "Core clients EmProps library",
   "main": "dist/index.js",
@@ -12,7 +12,8 @@
   "license": "UNLICENSED",
   "scripts": {
     "build": "rm -rf dist && tsc",
-    "lint": "eslint --fix ." },
+    "lint": "eslint --fix ."
+  },
   "dependencies": {
     "@dynamic-labs/utils": "^2.2.7",
     "discord.js": "^14.15.3",
@@ -23,7 +24,7 @@
     "@types/node": "^20.12.13",
     "@typescript-eslint/eslint-plugin": "^7.17.0",
     "@typescript-eslint/parser": "^7.17.0",
-    "eslint": "^9.7.0",
+    "eslint": "^8.56.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-prettier": "^5.2.1",
     "prettier": "^3.3.3",
