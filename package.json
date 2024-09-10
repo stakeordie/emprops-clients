@@ -1,6 +1,6 @@
 {
   "name": "@stakeordie/emprops-clients",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "Core clients EmProps library",
   "main": "dist/index.js",
   "types": "types/index.d.ts",
