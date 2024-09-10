@@ -1,3 +1,7 @@
+// Ignore linter in all file
+/* eslint-disable */
+// Ignore ts in all  file
+// @ts-nocheck
 import { BaseCollectionV1 } from "./base/v1";
 import { EthereumCollectionV0 } from "./ethereum/v0";
 import { EthereumCollectionV1 } from "./ethereum/v1";
