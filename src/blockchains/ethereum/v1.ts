@@ -18,7 +18,7 @@ export interface CollectionQueryEthereumParams {
   collectionId: number;
 }
 
-export interface TokensMintedQueryParams extends CollectionQueryEthereumParams {
+export interface TokensMintedQueryEthereumParamsV1 extends CollectionQueryEthereumParams {
   address: string;
 }
 export interface SetStatusParamsEthereumV1 extends CollectionTransactionEthereumParams {
@@ -288,7 +288,7 @@ export class EthereumCollectionV1 implements CollectionContract {
       error: null,
     };
   }
-  async getTokensMinted<TokensMintedQueryParams>(params: TokensMintedQueryParams): Promise<
+  async getTokensMinted<TokensMintedQueryEthereumParamsV1>(params: TokensMintedQueryEthereumParamsV1): Promise<
     QueryResponse<{
       tokensMinted: {
         allowlistCount: number;
