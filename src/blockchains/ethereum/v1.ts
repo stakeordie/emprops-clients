@@ -84,7 +84,7 @@ export interface CollectionArgsEthereumV1 {
 
 export interface RedeemParamsEthereumV1  extends CollectionQueryEthereumParams {
   address: string;
-} 
+}
 
 export class EthereumCollectionV1 implements CollectionContract {
   querier;
@@ -185,7 +185,7 @@ export class EthereumCollectionV1 implements CollectionContract {
   async withdrawFunds<CollectionTransactionEthereumParams>(
     params: CollectionTransactionEthereumParams,
   ): Promise<TransactionResponse> {
-    const args = this.encodeFunctionData("setTotalEditions", [
+    const args = this.encodeFunctionData("withdrawFunds", [
       params.collectionId,
     ]);
     const transaction = await this.buildTransactionData("0", args);
@@ -292,10 +292,10 @@ export class EthereumCollectionV1 implements CollectionContract {
     QueryResponse<{
       tokensMinted: {
         allowlistCount: number;
-        freelistCount: number;  
+        freelistCount: number;
       };
     }>
-  > {    
+  > {
 
     const tokensMinted = await this.querier.methods
       .accounts(params.collectionId, params.address)
@@ -308,7 +308,7 @@ export class EthereumCollectionV1 implements CollectionContract {
 
     return {
       data: {
-        tokensMinted: response          
+        tokensMinted: response
       },
       error: null,
     };

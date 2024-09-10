@@ -182,7 +182,7 @@ export class EthereumCollectionV0 implements CollectionContract {
   async withdrawFunds<CollectionTransactionEthereumParams>(
     params: CollectionTransactionEthereumParams,
   ): Promise<TransactionResponse> {
-    const args = this.encodeFunctionData("setTotalEditions", [
+    const args = this.encodeFunctionData("withdrawFunds", [
       params.collectionId,
     ]);
     const transaction = await this.buildTransactionData("0", args);
@@ -265,15 +265,15 @@ export class EthereumCollectionV0 implements CollectionContract {
   QueryResponse<{
     tokensMinted: {
       allowlistCount: number;
-      freelistCount: number;  
+      freelistCount: number;
     };
   }>
-> {  
+> {
 
   const tokensMinted = await this.querier.methods
     .allowlistCount(params.collectionId, params.address)
     .call();
-  
+
   const response = {
     allowlistCount: Number(tokensMinted) || 0,
     freelistCount: 0

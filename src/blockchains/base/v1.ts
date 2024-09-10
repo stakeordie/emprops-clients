@@ -181,7 +181,7 @@ export class BaseCollectionV1 implements CollectionContract {
   async withdrawFunds<CollectionTransactionBaseParams>(
     params: CollectionTransactionBaseParams
   ): Promise<TransactionResponse> {
-    const args = this.encodeFunctionData("setTotalEditions", [
+    const args = this.encodeFunctionData("withdrawFunds", [
       params.collectionId,
     ]);
     const transaction = await this.buildTransactionData("0", args);
@@ -289,10 +289,10 @@ export class BaseCollectionV1 implements CollectionContract {
     QueryResponse<{
       tokensMinted: {
         allowlistCount: number;
-        freelistCount: number;  
+        freelistCount: number;
       };
     }>
-  > {    
+  > {
 
     const tokensMinted = await this.querier.methods
       .accounts(params.collectionId, params.address)
@@ -305,7 +305,7 @@ export class BaseCollectionV1 implements CollectionContract {
 
     return {
       data: {
-        tokensMinted: response          
+        tokensMinted: response
       },
       error: null,
     };
